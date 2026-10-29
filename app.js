@@ -10,6 +10,13 @@ const viewer = document.querySelector('#viewer');
 const status = document.querySelector('#status');
 let pendingReplay = null;
 let engineReady = false;
+const dataSetup = document.querySelector('#data-setup');
+const setupMessage = document.querySelector('#setup-message');
+function showDataSetup(message) {
+  dataSetup.hidden = false;
+  setupMessage.textContent = message;
+}
+document.querySelector('#setup-import').onclick = () => document.querySelector('#mpq-files').click();
 const time = frames => {
   const seconds = Math.floor(frames * 0.042);
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
@@ -24,7 +31,10 @@ function selectReplay(source, title, meta, id) {
     button.setAttribute('aria-pressed', String(selected));
   });
   if (engineReady) playPending();
-  else status.textContent = '已选择回放。请先导入三份 MPQ 游戏数据。';
+  else {
+    status.textContent = '已选择回放。请先导入三份 MPQ 游戏数据。';
+    showDataSetup(`已选择「${title}」。导入下方三份游戏数据后自动播放。`);
+  }
 }
 function playPending() {
   if (!pendingReplay) return;
@@ -63,10 +73,15 @@ document.querySelector('#replay-file').onchange = event => { openFile(event.targ
 document.querySelector('#mpq-files').onchange = async event => {
   const selected = Array.from(event.target.files);
   event.target.value = '';
+  if (!selected.length) return;
   try {
     status.textContent = '正在读取游戏数据…';
+    setupMessage.textContent = '正在读取游戏数据，请稍候…';
     await viewer.contentWindow.ReplayLab.importMPQs(selected);
-  } catch (error) { status.textContent = error.message; }
+  } catch (error) {
+    status.textContent = error.message;
+    showDataSetup(error.message);
+  }
 };
 const localButton = document.querySelector('#local-mpq');
 localButton.hidden = !['localhost', '127.0.0.1'].includes(location.hostname);
@@ -89,9 +104,13 @@ window.addEventListener('message', event => {
   status.textContent = message;
   if (state === 'ready') {
     engineReady = true;
+    dataSetup.hidden = true;
     document.querySelector('#data-badge').textContent = '已就绪';
     playPending();
-  } else if (state === 'missing') document.querySelector('#data-badge').textContent = '待导入';
+  } else if (state === 'missing') {
+    document.querySelector('#data-badge').textContent = '待导入';
+    showDataSetup(pendingReplay ? '回放已选好。导入下面三份游戏数据后自动播放。' : '回放已在网站上，但播放器还需要游戏画面和音效资源。');
+  }
 });
 document.querySelector('#fullscreen').onclick = async () => {
   try { await document.querySelector('#screen').requestFullscreen(); }

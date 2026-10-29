@@ -6,8 +6,8 @@
   <meta name="description" content="在浏览器中播放 StarCraft 1.16.1 回放，基于 OpenBW。">
   <title>Replay Lab · 星际回放</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css">
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="app.css?v=2">
+  <script src="app.js?v=2" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -39,6 +39,17 @@
       <div class="viewer-heading"><div><span class="eyebrow">REPLAY VIEWER</span><h2 id="current-title">选择一份回放</h2></div><span id="current-meta">本地播放 / 无需上传</span></div>
       <div class="screen" id="screen">
         <iframe id="viewer" title="OpenBW 星际回放播放器" src="viewer/index.html" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        <div id="data-setup" class="data-setup" hidden>
+          <div class="setup-card">
+            <span class="eyebrow">首次播放</span>
+            <h3>还需要导入游戏数据</h3>
+            <p id="setup-message">回放已在网站上，但播放器还需要游戏画面和音效资源。</p>
+            <p>点击下面的按钮，在项目的 <code>assets/mpq/</code> 文件夹中，同时选择：</p>
+            <ul><li>StarDat.mpq</li><li>BrooDat.mpq</li><li>Patch_rt.mpq</li></ul>
+            <button id="setup-import" class="primary file-button">选择三份 MPQ 文件</button>
+            <small>只在当前浏览器读取和缓存，不上传。导入后自动播放已选回放。</small>
+          </div>
+        </div>
       </div>
       <div class="status-line"><span class="status-dot"></span><p id="status" role="status" aria-live="polite">正在初始化 OpenBW 引擎…</p></div>
       <div class="bottom-notes">
